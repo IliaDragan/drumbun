@@ -1,0 +1,674 @@
+<?php
+
+/**
+ * flag set is  false for debug not cached mode
+ */
+define('CACHE_ON', true);
+/**
+ * Implementation of hook_help
+ */
+function cctags_help($path, $arg) {
+  switch ($path) {
+   case 'admin/help#cctags':
+      return t('Provides a tag cloud interface and additional processing capabilities dictionaries.');
+  }
+}
+
+/**
+ * Implementation of hook_init
+ */
+function cctags_init() {
+ drupal_add_css(drupal_get_path('module', 'cctags') .'/cctags.css');
+}
+
+
+function cctags_theme() {
+  return array(
+    'cctags_settings' => array(
+      'render element' => 'form',
+      'file' => 'cctags.admin.inc',
+    ),
+    'cctags_settings_add_item' => array(
+      'render element' => 'form',
+      'file' => 'cctags.admin.inc',
+    ),
+    'cctags_settings_edit_item' => array(
+      'render element' => 'form',
+      'file' => 'cctags.admin.inc',
+    ),
+    'cctags_settings_item' => array(
+      'render element' => 'form',
+      'file' => 'cctags.admin.inc'
+    ),
+    'cctags_more' => array(
+      'variables' => array('cctid' => NULL)
+    ),
+    'cctags_block' => array(
+      'variables' => array(
+          'cctid' => NULL,
+          'amount' => 0,
+          'extra_class' => '',
+          'more_link' => TRUE),
+    ),
+    'cctags_level' => array(
+       'variables' => array(
+         'terms' => NULL,
+         'amount' => 0,
+         'page' => 0,
+         'mode' => 'mixed',
+         'vocname' => 0,
+         'out' => 'block',
+         ),
+       'file' => 'cctags.page.inc',
+    ),
+    'cctags_term' => array(
+       'variables' => array(
+         'term' => NULL,
+         'mode' => NULL),
+       'template' => 'cctags-term',
+    ),
+    'cctags_vocname' => array(
+       'variables' => array(
+          'vocname' => NULL,
+          'vid' => NULL,
+          'terms' => 0,
+          'mode' => '',
+          'is_out' => array(),
+       ),
+       'template' => 'cctags-vocname',
+    ),
+    'cctags_page' => array(
+      'variables' => array(
+          'cctid' => NULL,
+          'extra_class' => NULL,
+          'content' => NULL,
+          'pager' => NULL),
+      'file' => 'cctags.page.inc',
+      'template' => 'cctags-page',
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_menu
+ */
+function cctags_menu() {
+  $items = array();
+  $items['admin/config/content/cctags'] = array(
+    'title' => 'Cctags',
+    'description' => 'Configure the Cctags.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cctags_settings'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer site configuration'),
+    'file' => 'cctags.admin.inc',
+  );
+  $items['admin/config/content/cctags/list'] = array(
+    'title' => 'Cctags configuration',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items['admin/config/content/cctags/add'] = array(
+    'title' => 'Add cctags item',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cctags_settings_add_item'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_LOCAL_ACTION,
+//    'type' => MENU_LOCAL_TASK,
+    'file' => 'cctags.admin.inc',
+  );
+  $items['admin/config/content/cctags/%/edit'] = array(
+    'title' => 'Edit cctags item',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cctags_settings_edit_item', 4),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_CALLBACK,
+    'file' => 'cctags.admin.inc',
+  );
+  $items['admin/config/content/cctags/%/delete'] = array(
+    'title' => 'Delete cctags item',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cctags_settings_delete_item', 4),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_CALLBACK,
+    'file' => 'cctags.admin.inc',
+  );
+
+  $cctags_items = _cctags_get_settings(NULL);
+  foreach ($cctags_items as $key => $item) {
+   if ($item['page']) {
+   	$items[$item['page_path']] = array(
+    'title' => ($item['page_title']=='<none>')?$item['name']:$item['page_title'],
+    'page callback' => 'cctags_page',
+    'page arguments' => array($item),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'file' => 'cctags.page.inc',
+    );
+   }
+  }
+  return $items;
+}
+
+function cctags_taxonomy_term_update($term) {
+  _cctags_clear_cache('', 'all');
+}
+function cctags_taxonomy_term_insert($term) {
+  _cctags_clear_cache('', 'all');
+}
+function cctags_taxonomy_term_delete($term) {
+  _cctags_clear_cache('', 'all');
+}
+
+/**
+ * Invoke a hook_cctags_term_count() operation in all modules.
+ *
+ * @param &$term
+ *   A tags object.
+ * @return
+ *   none.
+ * example hook_cctags_term_count:
+ * function mymodyle_cctags_term_count(&$term) {
+ *   if ($term->tid == 356) {
+ *   $term->count = 10;
+ *   return TRUE;
+ *   }
+ *   else {
+ *   return FALSE;
+ *   }
+ *  }
+ */
+
+function cctags_invoke_cctags_term_count(&$term) {
+  if (!module_invoke_all('cctags_term_count', $term)) {
+  	$count = _cctgas_node_in_terms($term->tid);
+    $term->count = $count;
+  }
+}
+
+function cctags_build_level_tags($terms, $steps ) {  $tags = array();
+  $min = 1e9;
+  $max = -1e9;
+  foreach ($terms as $key => $term) {
+    $term->weight = log($term->count+1);
+    $min = min($min, $term->weight);
+    $max = max($max, $term->weight);
+    $tags[$term->vid][$term->tid] = $term;
+  }
+  $range = max(0.01, $max - $min) * 1.0001;
+  foreach ($tags as $vid => $terms) {
+    $vocabulary = taxonomy_vocabulary_load($vid);
+    $tags[$vid]['vocname'] = $vocabulary->name;
+    foreach ($terms as $key => $value) {
+      $tags[$vid][$key]->level = 1 + floor(($steps-1) * ($value->weight - $min) / $range);
+    }
+  }
+  return $tags;
+}
+
+
+function cctags_sort_tags($terms, $sort, $mode = 'mixed') {
+  list($sort, $order) = explode(',', $sort);
+  $tags = array();
+  $vocname = array();
+  $tcount = array();
+  $tvid = array();
+  if ($mode == 'mixed') {
+    foreach ($terms as $vid => $tag) {
+      if(isset($terms[$vid]['vocname'])){
+      $vocname[] = $terms[$vid]['vocname'];
+      }
+      $tcount[] = count($tag);
+      $tvid[]=$vid;
+      foreach ($tag as $tid => $term) {
+        if (is_numeric($tid)) {
+          $tags[$tid] = $term;
+        }
+      }
+    }
+    $tags=_cctags_sort($tags, $sort, $order);
+    $terms = array();
+    foreach ($tags as $t => $tag) {
+      $terms[0][$tag->tid] = $tag;
+    }
+    if(isset($vocname)){
+    $terms[0]['vocname'] = $vocname;
+    }
+    $terms[0]['terms'] = $tcount;
+    $terms[0]['vid'] = $tvid;
+   }
+ // goup by vid mode
+   else {
+     foreach ($terms as $vid => $tags) {
+        $vocname=$tags['vocname'];
+        unset($tags['vocname']);
+        $terms[$vid] =_cctags_sort($tags, $sort, $order);
+        $terms[$vid]['vocname']=array($vocname);
+        $terms[$vid]['terms']=array(count($tags));
+        $terms[$vid]['vid']=array($vid);
+     }
+   }
+  return $terms;
+}
+
+function _cctags_sort($tags, $sort, $order) {
+  switch ($sort) {
+    case 'title':
+      usort($tags, "_cctags_sort_by_title");
+      break;
+    case 'level':
+      usort($tags, "_cctags_sort_by_level");
+      break;
+    case 'random':
+      shuffle($tags);
+      break;
+  }
+  if ($order == 'desc') {
+    $tags = array_reverse($tags);
+  }
+  return $tags;
+}
+
+/**
+ * callback for usort, sort by count
+ */
+function _cctags_sort_by_title($a, $b) {
+  return strnatcasecmp($a->name, $b->name);
+}
+
+/**
+ * callback for usort, sort by weight
+ */
+function _cctags_sort_by_level($a, $b) {
+  if ($a->weight == $b->weight) {
+  return strnatcasecmp($a->name, $b->name);
+  }
+  return $a->weight > $b->weight;
+}
+
+/*
+*  clear cache  ccctags data
+*  $cctid -- id cctags or '' for all cache clear
+*  $mode == block|page|all
+*/
+function _cctags_clear_cache($cctid, $mode = 'all') {
+	if(!$cctid) {
+		$cctid = '%';
+	}
+	if ($mode=='block' || $mode=='all') {
+
+    $cache_name = 'cctags_cache_block_' . $cctid;
+    cache_clear_all($cache_name, 'cache', TRUE);
+  }
+  if ($mode=='page' || $mode=='all') {
+    $cache_name = 'cctags_cache_page_' . $cctid;
+    cache_clear_all($cache_name, 'cache', TRUE);
+  }
+}
+
+/**
+ * Function that gets the information from the database, passes it along to the weight builder and returns these weighted tags. Note that the tags are unordered at this stage, hence they need orndering either by calling our api or by your own ordering data.
+ * @param $cctid. Cctags IDs items.
+ * @param $mode. block or page parameters settings.
+ * @return An <em>unordered</em> array with tags-objects, containing the attribute $tag->weight,$tags->level ...;
+ */
+function cctags_get_level_tags($cctid, $mode = 'page') {
+  global $language;
+  $terms = array();
+  if ($mode == 'page') {
+  $cache_name = 'cctags_cache_page_' . $cctid . ':' . $language->language;
+  }
+  if ($mode == 'block') {
+  $cache_name = 'cctags_cache_block_' . $cctid . ':' . $language->language;
+  }
+  $cache = cache_get($cache_name);
+  // make sure cache has data
+  if (isset($cache->data) && CACHE_ON) {
+    $terms = $cache->data;
+  }
+  else {
+    $items = _cctags_get_settings($cctid);
+    $item = $items[$cctid];
+
+    $tree = array();
+    if (($item['page'] && $mode=='page') || ($item['block'] && $mode=='block')) {
+      foreach ($item['item_data']['vocs'] as $key => $value) {
+
+        if (is_numeric($key) && $value == 1) {
+          $tree = taxonomy_get_tree($key,0,NULL,TRUE);
+          foreach ($item['item_data']['level'][$key] as $k => $v) {
+            if ($v == 1) {
+              foreach ($tree as $t => $vt) {
+                if ($vt->depth == $k) {
+                  $term = $tree[$t];
+                  cctags_invoke_cctags_term_count($term);
+                  $uri = taxonomy_term_uri($term);
+                  $term->path  = $uri['path'];
+                  if ($term->count > 0 ) {
+                  $terms[] = $term;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      if ($mode=='page') {
+        $terms = cctags_build_level_tags($terms, $item['page_level']+1);
+        $terms = cctags_sort_tags($terms, $item['page_sort'], $item['page_mode']);
+      }
+      else {
+      $settings_data = variable_get('cctags_settings_block', '');
+      $settings_block = (empty($settings_data))?array():unserialize($settings_data);
+
+       $sort = isset($settings_block[$cctid]['tags_sort'])?$settings_block[$cctid]['tags_sort']:'title,asc';
+       $level = isset($settings_block[$cctid]['level'])?$settings_block[$cctid]['level']:6;
+       $level++;
+       $amount = isset($settings_block[$cctid]['tags'])?$settings_block[$cctid]['tags']:40;
+       $terms = cctags_build_level_tags($terms, $level);
+       $terms = cctags_sort_tags($terms, $sort, 'mixed');
+       $count = 0;
+       $block_terms = array();
+       foreach ($terms as $key => $value) {
+         foreach ($value as $tid => $term) {
+           if ($amount>0) {
+           $block_terms[$cctid][$tid] = $term;
+           }
+           $amount--;
+           $count++;
+         }
+       }
+       $terms['count'] = $count;
+      }
+    }
+    cache_set($cache_name, $terms, 'cache', CACHE_TEMPORARY);
+  }
+  return $terms;
+}
+
+function _cctags_get_settings($cctid) {
+  $items = array();
+    $select = db_select('cctags','ct');
+    $select->addField('ct','cctid');
+    $select->addField('ct','name');
+    $select->addField('ct','block');
+    $select->addField('ct','block_name');
+    $select->addField('ct','page');
+    $select->addField('ct','page_title');
+    $select->addField('ct','page_path');
+    $select->addField('ct','page_level');
+    $select->addField('ct','page_amount');
+    $select->addField('ct','page_sort');
+    $select->addField('ct','page_mode');
+    $select->addField('ct','page_vocname');
+    $select->addField('ct','page_extra_class');
+    $select->addField('ct','item_data');
+  if ($cctid) {
+    $select->condition('ct.cctid',$cctid);
+  }
+  $entries = $select->execute()->fetchAll();
+  foreach($entries as $cctags) {
+    $items[$cctags->cctid] = array(
+    'cctid' => $cctags->cctid,
+    'name' => $cctags->name,
+    'block' => $cctags->block,
+    'block_name' => $cctags->block_name,
+    'page' => $cctags->page,
+    'page_title' => $cctags->page_title,
+    'page_path' => $cctags->page_path,
+    'page_level' => $cctags->page_level,
+    'page_amount' => $cctags->page_amount,
+    'page_sort' => $cctags->page_sort,
+    'page_mode' => $cctags->page_mode,
+    'page_vocname' => $cctags->page_vocname,
+    'page_extra_class' => $cctags->page_extra_class,
+    'item_data' => unserialize($cctags->item_data)
+    );
+  }
+  return $items;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function cctags_block_info() {
+   $blocks = array();
+   $items = _cctags_get_settings(NULL);
+    foreach ($items as $key => $item) {
+      if ($item['block']) {
+        $blocks[$key]['info'] = $item['block_name'];
+        $blocks[$key]['cache'] = DRUPAL_CACHE_GLOBAL;
+      }
+    }
+  return $blocks;
+}
+/**
+ * Implements hook_block_view().
+ */
+function cctags_block_view($delta = '') {
+	 $blocks = array();
+   if (count($items = _cctags_get_settings($delta))) {
+      $blocks['subject'] = t('Cloud of tags');
+      $settings_data = variable_get('cctags_settings_block', '');
+      $settings_block = (empty($settings_data))?array():unserialize($settings_data);
+//      $settings_block = unserialize(variable_get('cctags_settings_block', ''));
+      $tags_more = ($items[$delta]['page'])?(isset($settings_block[$delta]['tags_more'])?$settings_block[$delta]['tags_more']:1):0;
+      $amount = isset($settings_block[$delta]['tags'])?$settings_block[$delta]['tags']:40;
+      $extra_class = isset($settings_block[$delta]['extra_class'])?$settings_block[$delta]['extra_class']:'';
+      $blocks['content'] =  theme('cctags_block', array('cctid' => $delta, 'amount' => $amount, 'extra_class' => $extra_class, 'more_link' => $tags_more));
+    }
+  return $blocks;
+}
+
+
+/**
+ * Implements hook_block_configure().
+ */
+function cctags_block_configure($delta = '') {
+  	$items = _cctags_get_settings($delta);
+  	$is_more = $items[$delta]['page'];
+    $settings_data = variable_get('cctags_settings_block', '');
+    $settings_block = (empty($settings_data))?array():unserialize($settings_data);
+    $tags = isset($settings_block[$delta]['tags'])?$settings_block[$delta]['tags']: 40;
+    $tags_more = isset($settings_block[$delta]['tags_more'])?$settings_block[$delta]['tags_more']:1;
+    $tags_sort = isset($settings_block[$delta]['tags_sort'])?$settings_block[$delta]['tags_sort']:'title,asc';
+    $level = isset($settings_block[$delta]['level'])?$settings_block[$delta]['level']:6;
+    $extra_class = isset($settings_block[$delta]['extra_class'])?$settings_block[$delta]['extra_class']:'';
+
+      $form = array();
+      $form['level'] = array(
+        '#type' => 'select',
+        '#options' => _cctags_get_select_list('level'),
+        '#title' => t('Number of levels fonts metrics'),
+        '#default_value' => $level,
+        '#description' => t('The number of levels between the least popular tags and the most popular ones. Different levels will be assigned a different class to be themed in cctags.css'),
+      );
+      $form['tags'] = array(
+        '#type' => 'select',
+        '#title' => 'Tags to show',
+        '#options' => _cctags_get_select_list('numtags'),
+        '#default_value' => $tags,
+        '#maxlength' => 3,
+        '#description' => t('The number of tags to show in this block.'),
+      );
+      $op_sort = array('level,asc' => t('by level, ascending'), 'level,desc' => t('by level, descending'), 'title,asc' => t('by title, ascending'), 'title,desc' => t('by title, descending'), 'random,none' => t('random'));
+      $form['tags_sort'] = array(
+        '#type' => 'radios',
+        '#title' => t('Tags sort order'),
+        '#options' => $op_sort,
+        '#default_value' => $tags_sort,
+      );
+     $form['extra_class'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Block wrapper extra class'),
+    '#maxlength' => 64,
+    '#description' => t('Extra class for block wrapper.'),
+    '#default_value' => $extra_class,
+    );
+
+
+      $form['tags_more'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Enable more link of end block'),
+        '#default_value' => ($is_more)?$tags_more:false,
+      );
+
+
+  return $form;
+}
+
+/**
+ * Implements hook_block_save().
+ */
+function cctags_block_save($delta = '', $edit = array()) {
+  //   $settings_block = unserialize(variable_get('cctags_settings_block', ''));
+     $settings_data = variable_get('cctags_settings_block', '');
+     $settings_block = (empty($settings_data))?array():unserialize($settings_data);
+     $settings_block[$delta]['tags'] = $edit['tags'];
+     $settings_block[$delta]['tags_sort'] = $edit['tags_sort'];
+     $settings_block[$delta]['tags_more'] = $edit['tags_more'];
+     $settings_block[$delta]['level'] = $edit['level'];
+     $settings_block[$delta]['extra_class'] = $edit['extra_class'];
+     variable_set('cctags_settings_block', serialize($settings_block));
+}
+
+
+function _cctags_get_select_list($type) {
+  $list = array();
+  switch ($type) {
+  case 'numtags':
+    $list = drupal_map_assoc(array(0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 40, 50, 60, 100, 120, 150, 200));
+    break;
+  case 'level':
+    $list = drupal_map_assoc(array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+    break;
+  case 'amount_tags':
+    $list = drupal_map_assoc(array(0, 6, 12, 14, 16, 18, 20, 24, 28, 32, 40, 50, 60, 100, 120, 150, 200, 300, 400, 500, 600, 900, 1400));
+    break;
+  }
+  return $list;
+}
+
+
+function theme_cctags_level($variables) {
+ 	$terms = $variables['terms'];
+	$amount =$variables['amount'];
+	$page = $variables['page'];
+	$mode = $variables['mode'];
+	$vocname = $variables['vocname'];
+	$out = $variables['out'];
+  $output = '';
+  $start_term = $amount * $page;
+  $end_term = $start_term + $amount;
+  $cur_term = 0;
+  $is_out = array();
+  $term_out = '';
+  $vocname_out = '';
+
+  foreach ($terms as $voc => $tags) {
+    if (is_numeric($voc)) {
+    	$is_out[$voc] = 0;
+      foreach ($tags as $term) {
+       if(is_object($term) && $term->tid){
+        if (($cur_term >= $start_term && $cur_term < $end_term) || $amount==0) {
+        	$is_out[$voc] = 1;
+          $term_out .= theme('cctags_term', array('term' => $term, 'mode' => $out));
+        }
+        $cur_term ++;
+//         dbg($term,$start_term. ' ' . $end_term . ' cur_term='.$cur_term);
+       }
+      }
+    if ($out=='page') {
+      $vn = NULL;
+      if ($vocname) {
+        $vn = $terms[$voc]['vocname'];
+      }
+
+      $vocname_out = theme('cctags_vocname',
+         array(
+          'vocname' => $vn,
+          'vid' => $terms[$voc]['vid'],
+          'terms' => $terms[$voc]['terms'],
+          'mode' => $mode,
+          'is_out' => $is_out,
+         )
+      );
+    }
+
+    $output .= $vocname_out . $term_out;
+    $term_out = '';
+    }
+   }
+
+  return $output;
+}
+
+function theme_cctags_more($variables) {
+	$cctid = $variables['cctid'];
+  $items = _cctags_get_settings($cctid);
+  $page_path = $items[$cctid]['page_path'];
+  return theme('more_link', array('class' => 'cctags-more-tags','title' => t('more tags'), 'url' => $page_path));
+}
+
+
+function template_preprocess_cctags_term(&$variables) {
+  $term = (object)$variables['term'];
+  $mode = $variables['mode'];
+  $t = '';
+  if(isset($term->count) && $term->count > 0){
+
+    $t = l($term->name, $term->path,
+      array('attributes' =>
+          array(
+          'class' => array(
+            'cctags cctags-' . $mode . ' vid-' . $term->vid . ' level-' . $term->level . ' depth-' . $term->depth . ' count-' . $term->count . ' ccfilter tooltip'),
+            'title' => $term->description,
+            'rel' => 'tag'
+          )
+      )
+    );
+  }
+  $variables['term'] = $t;
+}
+
+
+function theme_cctags_block($variables) {
+	$cctid = $variables['cctid'];
+	$amount = $variables['amount'];
+	$more_link = $variables['more_link'];
+	$extra_class = (empty($variables['extra_class']))?'':' ' .$variables['extra_class'];
+  $terms = cctags_get_level_tags($cctid, 'block');
+  $output = '';
+  if(count($terms)) {
+    $count = $terms['count'];
+
+    unset($terms['count']);
+    $output .= '<div class="cctags cctags-block wrapper' . $extra_class . '">';
+    $output .= theme('cctags_level', array('terms' => $terms, 'amount' => $amount, 'page' =>0, 'mode' => 'mixed', 'vocname' => 0, 'out' => 'block'));
+    $output .= '</div>';
+    if ($more_link && $count>$amount) {
+    $output .= theme('cctags_more', array('cctid' => $cctid));
+    }
+  }
+  return $output;
+}
+function _cctgas_terms_in_node($node){
+    $query = db_select('taxonomy_term_data', 't');
+    $query->join('taxonomy_index', 'i', 'i.tid = t.tid');
+    $query->addField('t', 'tid');
+    $query->condition('i.nid', $node->nid);
+    $query->addTag('term_access');
+    $tids = $query->execute()->fetchCol();
+    $terms = taxonomy_term_load_multiple($tids);
+    return $terms;
+}
+
+function _cctgas_node_in_terms($tid){
+    $query = db_select('taxonomy_term_data', 't');
+    $query->join('taxonomy_index', 'i', 'i.tid = t.tid');
+    $query->addField('i', 'nid');
+    $query->condition('t.tid', $tid);
+    $query->addTag('node_access');
+    $tids = $query->execute()->fetchCol();
+    return count($tids);
+}

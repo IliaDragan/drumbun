@@ -1,0 +1,338 @@
+<?php
+// $Id: drig.module,v 1.0 2011/05/16 19:59:43 sas Exp $
+
+/**
+ * @file
+ * Drupal image gallery.
+ */
+
+DEFINE('DRIG_NEXT_ARROW', '>'); 
+DEFINE('DRIG_PREV_ARROW', '<');
+DEFINE('DRIG_THUMB_IS_NAME', 'drig_thumbnail');
+/**
+ * Implements hook_help().
+ */
+function drig_help($path, $arg) {
+	switch ($path) {
+		case 'admin/help#drig':
+			$output = '';
+			$output .= '<h3>' . t('About') . '</h3>';
+			$output .= '<p>' . t('Simple & light image gallery') . '</p>';
+			return $output;
+	}
+}
+function drig_menu(){
+	$items = array();
+	$items['admin/config/content/drig'] = array(
+    'title' => 'DRupal Image Gallery',
+    'description' => "Settings for gallery.",
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('drig_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'drig.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+    'weight' => -15,
+	);
+	return $items;
+}
+/**
+ * Implements hook_node_info().
+ */
+function drig_node_info() {
+	return array(
+    'image_gallery' => array(
+      'name' => t('Image gallery'),
+      'base' => 'drig',
+      'description' => t('Image gallery.'),
+      'title_label' => t('Gallery name'),
+  	  'has_body' => TRUE
+	),
+	);
+}
+/**
+ * Act on a node that is being assembled before rendering.
+ *
+ * The module may add elements to $node->content prior to rendering. This hook
+ * will be called after hook_view(). The structure of $node->content is a
+ * renderable array as expected by drupal_render().
+ *
+ * When $view_mode is 'rss', modules can also add extra RSS elements and
+ * namespaces to $node->rss_elements and $node->rss_namespaces respectively for
+ * the RSS item generated for this node.
+ * For details on how this is used, see node_feed().
+ *
+ * @see blog_node_view()
+ * @see forum_node_view()
+ * @see comment_node_view()
+ *
+ * @param $node
+ *   The node that is being assembled for rendering.
+ * @param $view_mode
+ *   The $view_mode parameter from node_view().
+ * @param $langcode
+ *   The language code used for rendering.
+ *
+ * @see hook_entity_view()
+ *
+ * @ingroup node_api_hooks
+ */
+function drig_node_view($node, $view_mode, $langcode) {
+
+	if(is_array($field_name = variable_get('drig_fields_' . $node->type, 0))){
+		$field_name = array_shift($field_name);
+	}
+	if(!$field_name && $node->type == 'image_gallery'){
+		$field_name = 'field_image';
+	}
+	if($field_name && (in_array($view_mode, array('teaser', 'full'), TRUE))){
+		if(count($node->$field_name)){
+			drupal_add_css(drupal_get_path('module', 'drig') . '/drig.css');
+			if(is_array($field_image_name = variable_get('drig_fields_' . $node->type, 'field_image'))){
+				$field_image_name = array_shift($field_image_name);
+			}
+			$node->content['drig_gallery_view'] = array(
+	    '#markup' => theme('drig_gallery_view_' . $view_mode, array('node' => $node, 'field_image_name' => $field_image_name)),
+	    '#weight' => 10,
+			);
+		}
+	}
+}
+/**
+ * Implements hook_theme().
+ */
+function drig_theme() {
+	return array(
+    'drig_gallery_view_full' => array(
+      'variables' => array('node' => null),
+      'template' => 'drig-gallery-view-full',
+	),
+	'drig_gallery_view_teaser' => array(
+      'variables' => array('node' => null),
+      'template' => 'drig-gallery-view-teaser',
+	),
+	'drig_nav' => array(
+	  'variables' => array('node' => null, 'count' => 0)
+	),
+	'drig_nav_list' => array(
+	  'variables' => array('items' => null, 'attributes' => null)
+	),
+	);
+}
+/**
+ * 
+ * theming list of nav links ...
+ * @param array $variables
+ * @see drig_theme
+ */
+function theme_drig_nav_list($variables){
+	if (isset($variables['items'])){
+	$out = '<table' . (isset($variables['attributes']['class']) ? ' class="' . $variables['attributes']['class'] . '"' : '') . '><tr>';
+	foreach($variables['items'] as $link){
+		$out .= '<td>' . $link . '</td>';
+	}
+	$out .= '</tr></table>'; 
+	return $out;
+	}
+}
+function theme_drig_nav($variables){
+	$items = array();
+	$node = $variables['node'];
+	$count = $variables['count'];
+	$nav = (isset($_GET['nav']) ? $_GET['nav'] : 0);
+	if (($prev = ($nav - 1)) >= 0) {
+		$vars = array();
+		if ($prev){
+			$vars['query'] =  array('nav' => $prev);
+		}
+		$items['prev'] = l(DRIG_PREV_ARROW, "node/{$node->nid}", array_merge(array('attributes' => array('class'=>array('drig-prev'))), $vars)); // prev
+		$items['first'] = l('1', "node/{$node->nid}"); // first
+	}
+	$items['nav'] = '<span class="drig-active-nav">' . ($nav + 1) . '</span>';
+	if (isset($node->field_image[$node->language][($nav + 1) * $count])){
+		$last_nav = (int)(count($node->field_image[$node->language]) / $count );
+		if(count($node->field_image[$node->language]) % $count){
+			$last_nav++;
+		}
+		$items['last'] = l($last_nav, "node/{$node->nid}", array('query' => array('nav' => ($last_nav - 1)))); // last
+		$items['next'] = l(DRIG_NEXT_ARROW, "node/{$node->nid}", array_merge(array('attributes' => array('class'=>array('drig-next'))), array('query' => array('nav' => ($nav + 1))))); // next
+	}
+	if(count($items) > 1){
+		return theme('drig_nav_list', array('items' => $items, 'attributes' => array('class' => 'drig-nav')));
+	}
+}
+/**
+ * Process variables for drig-gallery-view-full.tpl.php.
+ *
+ * The $variables array contains the following arguments:
+ * - $node
+ *
+ * @see drig-gallery-view-full.tpl.php
+ */
+function template_preprocess_drig_gallery_view_full(&$variables) {
+	drupal_add_js(drupal_get_path('module', 'drig') . '/drig.js');
+	$variables['images'] = '';
+	$variables['image_title'] = '';
+	$variables['image'] = '';
+	$variables['original'] = '';
+	$field_image_name = $variables['field_image_name'];
+	$node = $variables['node'];
+	$field_image = $node->$field_image_name;
+	$attr['html'] = TRUE;
+
+	$variables['total_images'] = t('Total images: <strong>@count</strong>', array('@count' => (isset($field_image[$node->language]) ? count($field_image[$node->language]) : 0)));
+	$variables['nav'] = theme('drig_nav', array('node' => $node, 'count' => variable_get('drig_count_on_page', 5)));
+	if(isset($field_image[$node->language])){
+		if($images = drig_get_images($field_image[$node->language], variable_get('drig_count_on_page', 5))){
+			foreach($images as $delta => $image){
+				if(!isset($first_delta)){
+					$first_delta = $delta;
+				}
+				$style_name = variable_get('drig_thumbnail_image_style', DRIG_THUMB_IS_NAME);
+				$image = theme('image_style', array('style_name' => $style_name, 'path' => $image['uri'], 'title' => $image['title'], 'alt' => (!empty($image['alt']) ? $image['alt'] : $image['title'])));
+				if ($delta){
+					$query = array_diff_key($_GET, array('q' => 'q'));
+					$attr['query'] = array_merge($query, array('image' => $delta));
+				}
+				$attr['attributes'] = array('title' => $image['title']);
+				if ((!isset($_GET['image']) && $delta == $first_delta) || (isset($_GET['image']) && $delta == $_GET['image'])){
+					$attr['attributes']['class'] = array('drig-viewed-image');
+				}
+				$items[] = l($image, "node/{$node->nid}", $attr);
+			}
+			unset($variables['node']->content[$field_image_name]);
+		}
+		if($items){
+			$variables['images'] = theme('item_list', array('items' => $items, 'attributes' => array('class' => 'drig-thumbnail-list')));
+			$delta = isset($_GET['image']) ? $_GET['image'] : $first_delta;
+			$image = $field_image[$node->language][$delta];
+			$view_image = theme('image', array('path' => $image['uri'], 'title' => $image['title'], 'alt' => (!empty($image['alt']) ? $image['alt'] : $image['title'])));
+			$variables['image_title'] = $image['title'];
+			$variables['image'] = $view_image;
+			list($width, $height, $type, $image_attributes) = @getimagesize(file_create_url($image['uri']));
+			// example - onClick="window.open('http://www.pageresource.com/jscript/jex5.htm','mywindow','width=400,height=200')
+			$onclick = "window.open('" . file_create_url($image['uri']) ."','image','width=" . $width . ",height=" . $height ."'); return false;";
+			$attr['attributes'] = array(
+		'class' => 'drig-original-url', 
+		'title' => $image['title'],
+		'onClick' => $onclick,
+			);
+			$variables['original'] = l('[+]', file_create_url($image['uri']), $attr);
+		}
+	}
+}
+/**
+ * Get current images for view
+ * 	- $node 
+ * 		drig node
+ * 	- $count 
+ * 		count image for view
+ *  - return
+ *   	$images array()
+ */
+function drig_get_images($images, $count){
+	$nav = isset($_GET['nav']) ? $_GET['nav'] : 0; 
+	if($nav < 0 || !isset($images[($nav * $count)])){
+		return drupal_not_found();
+	} 
+	$images = array_slice($images, $nav * $count, ($count ? $count : count($images)), TRUE);
+	return $images;
+}
+/**
+ * Process variables for drig-gallery-view-full.tpl.php.
+ *
+ * The $variables array contains the following arguments:
+ * - $node
+ *
+ * @see drig-gallery-view-full.tpl.php
+ */
+function template_preprocess_drig_gallery_view_teaser(&$variables) {
+	$node = $variables['node'];
+	$field_image_name = $variables['field_image_name'];
+	$field_image = $node->$field_image_name;
+	$variables['total_images'] = t('Total images: <strong>@count</strong>', array('@count' => count($field_image[$node->language])));
+	$title = truncate_utf8($node->title, 80, TRUE, TRUE);
+	$filepath = $field_image[$node->language][0]['uri'];
+	$style_name = variable_get('drig_thumbnail_image_style', DRIG_THUMB_IS_NAME);
+	$image = theme('image_style', array('style_name' => $style_name, 'path' => $filepath, 'alt' => 'gallery - ' . $title, 'title' => 'gallery - ' . $title));
+	$variables['image'] = l($image, "node/{$node->nid}", array('html' => TRUE));
+	unset($variables['node']->content[$field_image_name]);
+}
+/**
+ * hook_image_default_styles
+ */
+function drig_image_default_styles() {
+	$styles = array();
+	$styles[DRIG_THUMB_IS_NAME] = array(
+    'effects' => array(
+	array(
+        'name' => 'image_scale',
+        'data' => array('width' => 100, 'upscale' => 1),
+        'weight' => 0,
+	),
+	)
+	);
+	return $styles;
+}
+/**
+ * Add default body field to a node type.
+ *
+ * @param $type
+ *   A node type object.
+ * @param $label
+ *   The label for the body instance.
+ *
+ * @return
+ *   Body field instance.
+ */
+function drig_add_image_field($type, $label = 'Image') {
+	// Add or remove the image field, as needed.
+	$field = field_read_field('field_image', array('include_inactive' => TRUE));
+	$instance = field_read_instance('node', 'field_image', $type->type, array('include_inactive' => TRUE));
+
+	if (!$field) {
+		$field = array(
+      'field_name' => 'field_image',
+      'type' => 'image',
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'entity_types' => array('node'),
+      'translatable' => TRUE,
+  	  'default_widget' => 'image_image',
+      'settings' => array(
+        'uri_scheme' => variable_get('file_default_scheme', 'public'),
+        'default_image' => 0,
+		),
+		);
+		$field = field_create_field($field);
+	}
+	if (!$instance) {
+		$instance = array(
+      'field_name' => 'field_image',
+      'entity_type' => 'node',
+      'bundle' => $type->type,
+      'label' => $label,
+      'widget_type' => 'image_image',
+      'settings' => array(
+        'file_extensions' => 'png gif jpg jpeg',
+        'file_directory' => '',
+        'max_filesize' => '',
+        'alt_field' => TRUE,
+        'title_field' => TRUE,
+        'max_resolution' => '',
+        'min_resolution' => '',
+		),
+      'required' => TRUE,
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'image',
+		),
+        'teaser' => array(
+          'label' => 'hidden',
+          'type' => 'image',
+		),
+		),
+		);
+		$instance = field_create_instance($instance);
+	}
+	return $instance;
+}

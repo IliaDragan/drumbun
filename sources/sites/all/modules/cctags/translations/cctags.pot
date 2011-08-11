@@ -1,0 +1,274 @@
+# $Id$
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  cctags.admin.inc: n/a
+#  cctags.module: n/a
+#  cctags.info: n/a
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2011-06-19 14:57+0400\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: cctags.admin.inc:21
+msgid "Settings"
+msgstr ""
+
+#: cctags.admin.inc:22;465
+msgid "Delete"
+msgstr ""
+
+#: cctags.admin.inc:32
+msgid "Save cctags settings"
+msgstr ""
+
+#: cctags.admin.inc:66
+msgid "The Cctags configuration has been updated."
+msgstr ""
+
+#: cctags.admin.inc:117;369
+msgid "Cctags item name"
+msgstr ""
+
+#: cctags.admin.inc:143
+msgid "Setting for block of this item cctags"
+msgstr ""
+
+#: cctags.admin.inc:149
+msgid "Enable block for this cctags item"
+msgstr ""
+
+#: cctags.admin.inc:154
+msgid "Block name"
+msgstr ""
+
+#: cctags.admin.inc:156
+msgid "A name of your block. Used on the block overview page. If empty then uses name this cctags  item."
+msgstr ""
+
+#: cctags.admin.inc:163
+msgid "Setting for page of this item cctags"
+msgstr ""
+
+#: cctags.admin.inc:169
+msgid "Enable access page for this cctags item"
+msgstr ""
+
+#: cctags.admin.inc:174
+msgid "Page title"
+msgstr ""
+
+#: cctags.admin.inc:176
+msgid "A title of your page."
+msgstr ""
+
+#: cctags.admin.inc:183;373
+msgid "Page path"
+msgstr ""
+
+#: cctags.admin.inc:185
+msgid "Path to access of your page. If empty, predefined path cctags/page/%item-id."
+msgstr ""
+
+#: cctags.admin.inc:192 cctags.module:479
+msgid "Number of levels fonts metrics"
+msgstr ""
+
+#: cctags.admin.inc:194 cctags.module:481
+msgid "The number of levels between the least popular tags and the most popular ones. Different levels will be assigned a different class to be themed in cctags.css"
+msgstr ""
+
+#: cctags.admin.inc:196 cctags.module:491
+msgid "by level, ascending"
+msgstr ""
+
+#: cctags.admin.inc:196 cctags.module:491
+msgid "by level, descending"
+msgstr ""
+
+#: cctags.admin.inc:196 cctags.module:491
+msgid "by title, ascending"
+msgstr ""
+
+#: cctags.admin.inc:196 cctags.module:491
+msgid "by title, descending"
+msgstr ""
+
+#: cctags.admin.inc:196 cctags.module:491
+msgid "random"
+msgstr ""
+
+#: cctags.admin.inc:199 cctags.module:494
+msgid "Tags sort order"
+msgstr ""
+
+#: cctags.admin.inc:202
+msgid "Determines the sort order of the tags on the page."
+msgstr ""
+
+#: cctags.admin.inc:208
+msgid "Amount of tags on the per page"
+msgstr ""
+
+#: cctags.admin.inc:210
+msgid "The amount of tags that will show up in a cloud on the per pages. if value equal 0, then all tags, for this cctags item, will be visible in one page."
+msgstr ""
+
+#: cctags.admin.inc:212
+msgid "group by vocabulary"
+msgstr ""
+
+#: cctags.admin.inc:212
+msgid "mixed vocabulary"
+msgstr ""
+
+#: cctags.admin.inc:215
+msgid "View page mode"
+msgstr ""
+
+#: cctags.admin.inc:218
+msgid "Determines the view mode of the tags on the page."
+msgstr ""
+
+#: cctags.admin.inc:222
+msgid "Cctags view page vocabulary name"
+msgstr ""
+
+#: cctags.admin.inc:224
+msgid "Determines the view vocabulary name(s)."
+msgstr ""
+
+#: cctags.admin.inc:229
+msgid "Page wrapper extra class"
+msgstr ""
+
+#: cctags.admin.inc:231
+msgid "Extra class for page wrapper."
+msgstr ""
+
+#: cctags.admin.inc:242
+msgid "Save cctags item"
+msgstr ""
+
+#: cctags.admin.inc:271
+msgid "Select at least one vocabulary and level."
+msgstr ""
+
+#: cctags.admin.inc:318
+msgid "The Cctags item %name has been created."
+msgstr ""
+
+#: cctags.admin.inc:358
+msgid "The Cctags item %name has been updated."
+msgstr ""
+
+#: cctags.admin.inc:370
+msgid "Cctag id"
+msgstr ""
+
+#: cctags.admin.inc:371
+msgid "Block"
+msgstr ""
+
+#: cctags.admin.inc:372
+msgid "Page"
+msgstr ""
+
+#: cctags.admin.inc:374
+msgid "Operation"
+msgstr ""
+
+#: cctags.admin.inc:404
+msgid "Setting for cctags item"
+msgstr ""
+
+#: cctags.admin.inc:429
+msgid "Vocabulary name"
+msgstr ""
+
+#: cctags.admin.inc:431
+msgid "Level"
+msgstr ""
+
+#: cctags.admin.inc:465
+msgid "Are you sure you want to delete the cctags item %name?"
+msgstr ""
+
+#: cctags.admin.inc:465
+msgid "Cancel"
+msgstr ""
+
+#: cctags.admin.inc:473
+msgid "The cctags item %name has been removed."
+msgstr ""
+
+#: cctags.module:9
+msgid "Provides a tag cloud interface and additional processing capabilities dictionaries."
+msgstr ""
+
+#: cctags.module:448
+msgid "Cloud of tags"
+msgstr ""
+
+#: cctags.module:489
+msgid "The number of tags to show in this block."
+msgstr ""
+
+#: cctags.module:500
+msgid "Block wrapper extra class"
+msgstr ""
+
+#: cctags.module:502
+msgid "Extra class for block wrapper."
+msgstr ""
+
+#: cctags.module:509
+msgid "Enable more link of end block"
+msgstr ""
+
+#: cctags.module:587
+msgid "more tags"
+msgstr ""
+
+#: cctags.module:91 cctags.info:0
+msgid "Cctags"
+msgstr ""
+
+#: cctags.module:92
+msgid "Configure the Cctags."
+msgstr ""
+
+#: cctags.module:100
+msgid "Cctags configuration"
+msgstr ""
+
+#: cctags.module:105
+msgid "Add cctags item"
+msgstr ""
+
+#: cctags.module:114
+msgid "Edit cctags item"
+msgstr ""
+
+#: cctags.module:122
+msgid "Delete cctags item"
+msgstr ""
+
+#: cctags.info:0
+msgid "Makes weighted tag clouds from your taxonomy terms."
+msgstr ""
+
+#: cctags.info:0
+msgid "Ccpackage"
+msgstr ""
+

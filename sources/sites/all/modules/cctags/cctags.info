@@ -1,0 +1,24 @@
+; $Id$
+name = Cctags
+description = Makes weighted tag clouds from your taxonomy terms.
+dependencies[] = taxonomy
+package = "Ccpackage"
+core = 7.x
+configure = admin/config/content/cctags
+files[]= cctags.modules
+files[]= cctags.install
+files[]= cctags.admin.inc
+files[]= cctags.page.inc
+files[]= cctags.admin.js
+files[]= cctags-page.tpl.php
+files[]= cctags-term.tpl.php
+files[]= cctags-vocname.tpl.php
+
+
+
+; Information added by drupal.org packaging script on 2011-06-27
+version = "7.x-1.2"
+core = "7.x"
+project = "cctags"
+datestamp = "1309181515"
+

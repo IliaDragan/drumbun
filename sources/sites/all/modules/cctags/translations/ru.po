@@ -1,0 +1,279 @@
+# $Id$
+#  cctags.admin.inc: n/a
+#  cctags.module: n/a
+#  cctags.info: n/a
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cctags (7.x-1.x-dev)\n"
+"POT-Creation-Date: 2011-06-19 11:20+0300\n"
+"PO-Revision-Date: 2011-06-22 21:33+0300\n"
+"Language-Team: Russian\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+"Last-Translator: Oleg Kovalchuk <olk2@mail.ru>\n"
+"X-Poedit-Language: Russian\n"
+
+#: cctags.admin.inc:21
+msgid "Settings"
+msgstr "Настройка"
+
+#: cctags.admin.inc:22;465
+msgid "Delete"
+msgstr "Удалить"
+
+#: cctags.admin.inc:32
+msgid "Save cctags settings"
+msgstr "Сохранить настройки cctags"
+
+#: cctags.admin.inc:66
+msgid "The Cctags configuration has been updated."
+msgstr "Настройки Cctags сохранены"
+
+#: cctags.admin.inc:117;369
+msgid "Cctags item name"
+msgstr "Наименование элемента cctags"
+
+#: cctags.admin.inc:143
+msgid "Setting for block of this item cctags"
+msgstr "Настройки блока для данного элемента cctags"
+
+#: cctags.admin.inc:149
+msgid "Enable block for this cctags item"
+msgstr "Разрешить формирование блока для данного элемента cctags"
+
+#: cctags.admin.inc:154
+msgid "Block name"
+msgstr "Имя блока"
+
+#: cctags.admin.inc:156
+msgid "A name of your block. Used on the block overview page. If empty then uses name this cctags  item."
+msgstr "Наименование вашего блока используемое на странице настройки блоков."
+
+#: cctags.admin.inc:163
+msgid "Setting for page of this item cctags"
+msgstr "Настройки страницы для данного элемента cctags"
+
+#: cctags.admin.inc:169
+msgid "Enable access page for this cctags item"
+msgstr "Разрешить формирование страницы для данного элемента cctags"
+
+#: cctags.admin.inc:174
+msgid "Page title"
+msgstr "Заголовок страницы"
+
+#: cctags.admin.inc:176
+msgid "A title of your page."
+msgstr "Заголовок для страницы данного элемента cctags"
+
+#: cctags.admin.inc:183;373
+msgid "Page path"
+msgstr "Путь на страницу"
+
+#: cctags.admin.inc:185
+msgid "Path to access of your page. If empty, predefined path cctags/page/%item-id."
+msgstr "Путь по которому будет доступна страница облака терминов. Если поле пустое, то по умолчанию будет прописан путь cctags/page/%item-id."
+
+#: cctags.admin.inc:192
+#: cctags.module:479
+msgid "Number of levels fonts metrics"
+msgstr "Количество уровней для шрифта"
+
+#: cctags.admin.inc:194
+#: cctags.module:481
+msgid "The number of levels between the least popular tags and the most popular ones. Different levels will be assigned a different class to be themed in cctags.css"
+msgstr "Количество уровней для шрифта, определяет сколько уровней будет определено для шрифта, для термина с максимальной популярностью будет определен уровень с данным значением, а для термна с наименьшей популярностью будет определен уровень 1. Стили определяющие вывод терминов в зависмости от уровня находятся в файле cctags.css. Вы можете переопределить данные стили в своей теме."
+
+#: cctags.admin.inc:196
+#: cctags.module:491
+msgid "by level, ascending"
+msgstr "по весу в порядке возрастания"
+
+#: cctags.admin.inc:196
+#: cctags.module:491
+msgid "by level, descending"
+msgstr "по весу в порядке убывания"
+
+#: cctags.admin.inc:196
+#: cctags.module:491
+msgid "by title, ascending"
+msgstr "по наименованию в порядке возрастания"
+
+#: cctags.admin.inc:196
+#: cctags.module:491
+msgid "by title, descending"
+msgstr "по наименованию в порядке убывания"
+
+#: cctags.admin.inc:196
+#: cctags.module:491
+msgid "random"
+msgstr "в случайном порядке"
+
+#: cctags.admin.inc:199
+#: cctags.module:494
+msgid "Tags sort order"
+msgstr "Порядок сортировки терминов"
+
+#: cctags.admin.inc:202
+msgid "Determines the sort order of the tags on the page."
+msgstr "Определяет порядок сортировки терминов на странице."
+
+#: cctags.admin.inc:208
+msgid "Amount of tags on the per page"
+msgstr "Максимальное количество терминов выводимое на одну страницу"
+
+#: cctags.admin.inc:210
+msgid "The amount of tags that will show up in a cloud on the per pages. if value equal 0, then all tags, for this cctags item, will be visible in one page."
+msgstr "Максимальное количество терминов выводимое в обаке терминов, на одну страницу. Если равно нулю, все термины для данного элемента cctags будут выведены на одной странице."
+
+#: cctags.admin.inc:212
+msgid "group by vocabulary"
+msgstr "Группировать по словарям"
+
+#: cctags.admin.inc:212
+msgid "mixed vocabulary"
+msgstr "Не группировать по словарям"
+
+#: cctags.admin.inc:215
+msgid "View page mode"
+msgstr "Режим вывода на странице"
+
+#: cctags.admin.inc:218
+msgid "Determines the view mode of the tags on the page."
+msgstr "Определяет режим показа терминов на странице."
+
+#: cctags.admin.inc:222
+msgid "Cctags view page vocabulary name"
+msgstr "Показывать на странице имена словарей"
+
+#: cctags.admin.inc:224
+msgid "Determines the view vocabulary name(s)."
+msgstr "Определяет видимость наименования словаря(ей)."
+
+#: cctags.admin.inc:229
+msgid "Page wrapper extra class"
+msgstr "Дополнительный класс для враппера страницы"
+
+#: cctags.admin.inc:231
+msgid "Extra class for page wrapper."
+msgstr "Дополнительный класс который будет добавлен к див-у обрамляющему страницу вывода облака."
+
+#: cctags.admin.inc:242
+msgid "Save cctags item"
+msgstr "Сохранить настройки элемента cctags"
+
+#: cctags.admin.inc:271
+msgid "Select at least one vocabulary and level."
+msgstr "Выберите хотя бы один словарь и уровень терминов в нем."
+
+#: cctags.admin.inc:318
+msgid "The Cctags item %name has been created."
+msgstr "Элемент cctags с именем %name создан."
+
+#: cctags.admin.inc:358
+msgid "The Cctags item %name has been updated."
+msgstr "Элемент cctags с именем %name сохранен."
+
+#: cctags.admin.inc:370
+msgid "Cctag id"
+msgstr ""
+
+#: cctags.admin.inc:371
+msgid "Block"
+msgstr "Блок"
+
+#: cctags.admin.inc:372
+msgid "Page"
+msgstr "Страница"
+
+#: cctags.admin.inc:374
+msgid "Operation"
+msgstr "Операция"
+
+#: cctags.admin.inc:404
+msgid "Setting for cctags item"
+msgstr "Настройки для элемента cctags"
+
+#: cctags.admin.inc:429
+msgid "Vocabulary name"
+msgstr "Словарь"
+
+#: cctags.admin.inc:431
+msgid "Level"
+msgstr "Уровень"
+
+#: cctags.admin.inc:465
+msgid "Are you sure you want to delete the cctags item %name?"
+msgstr "Вы действительно хотите удалить элемент cctags с имененем %name?"
+
+#: cctags.admin.inc:465
+msgid "Cancel"
+msgstr "Отменить"
+
+#: cctags.admin.inc:473
+msgid "The cctags item %name has been removed."
+msgstr "Элемент cctags с именем %name удален."
+
+#: cctags.module:9
+msgid "Provides a tag cloud interface and additional processing capabilities dictionaries."
+msgstr "Обеспечивает интерфейс облако тегов и дополнительные возможности обработки словарей."
+
+#: cctags.module:448
+msgid "Cloud of tags"
+msgstr "Облако тэгов"
+
+#: cctags.module:489
+msgid "The number of tags to show in this block."
+msgstr "Количество терминов показываемых в блоке."
+
+#: cctags.module:500
+msgid "Block wrapper extra class"
+msgstr "Дополнительный класс"
+
+#: cctags.module:502
+msgid "Extra class for block wrapper."
+msgstr "Дополнительный класс для враппера блока."
+
+#: cctags.module:509
+msgid "Enable more link of end block"
+msgstr "Разрешить ссылку на страницу облака тэгов"
+
+#: cctags.module:587
+msgid "more tags"
+msgstr "Все тэги"
+
+#: cctags.module:91
+#: cctags.info:0
+msgid "Cctags"
+msgstr ""
+
+#: cctags.module:92
+msgid "Configure the Cctags."
+msgstr "Настройки Cctags."
+
+#: cctags.module:100
+msgid "Cctags configuration"
+msgstr "Настройка Сctags"
+
+#: cctags.module:105
+msgid "Add cctags item"
+msgstr "Добавить элемент cctags"
+
+#: cctags.module:114
+msgid "Edit cctags item"
+msgstr "Редактировать элемент cctags"
+
+#: cctags.module:122
+msgid "Delete cctags item"
+msgstr "Удалить элемент cctags"
+
+#: cctags.info:0
+msgid "Makes weighted tag clouds from your taxonomy terms."
+msgstr "Создает облоко тэгов с весом зависимым от применяемости данного тэга."
+
+#: cctags.info:0
+msgid "Ccpackage"
+msgstr ""
+

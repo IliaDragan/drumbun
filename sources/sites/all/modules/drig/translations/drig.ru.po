@@ -1,0 +1,81 @@
+# $Id$
+#
+# Russian translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  drig.admin.inc,v 1 2011/05/17 19:59:43 sas
+#  drig.module,v 1.0 2011/05/16 19:59:43 sas
+#  drig.install,v 1.0 2011/05/16 19:59:43 sas
+#  drig.info,v 1.0 2011/05/16 19:59:43 sas
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2011-05-27 07:38+0300\n"
+"PO-Revision-Date: 2011-05-27 07:43+0200\n"
+"Last-Translator: alex <alexsco74@gmail.com>\n"
+"Language-Team: Russian <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+
+#: drig.admin.inc:13
+msgid "Gallery node type"
+msgstr "Тип материала для галереи"
+
+#: drig.admin.inc:23
+msgid "Thumbnail image style"
+msgstr "Тип картинки для миниатюры"
+
+#: drig.admin.inc:29
+msgid "Count image on page for navigation."
+msgstr "Количество изображений на странице для навигации."
+
+#: drig.admin.inc:30
+msgid "0 - not use navigator."
+msgstr "0 - не использовать навигатор."
+
+#: drig.module:19
+msgid "About"
+msgstr "О редакторе"
+
+#: drig.module:20
+msgid "Simple & light image gallery"
+msgstr "Простая и легкая фотогалерея"
+
+#: drig.module:44
+#: drig.install:28
+#: drig.info:0
+msgid "Image gallery"
+msgstr "Фотогалерея"
+
+#: drig.module:46
+#: drig.install:30
+msgid "Image gallery."
+msgstr "Фотогалерея."
+
+#: drig.module:47
+msgid "Gallery name"
+msgstr "Название галереи"
+
+#: drig.module:172;238
+msgid "Total images: <strong>@count</strong>"
+msgstr "Всего изображений: <strong>@count</strong>"
+
+#: drig.module:27
+msgid "DRupal Image Gallery"
+msgstr "DRupal Image Gallery"
+
+#: drig.module:28
+msgid "Settings for gallery."
+msgstr "Настройки для галереи."
+
+#: drig.info:0
+msgid "DRIG"
+msgstr ""
+
+#: drig.info:0
+msgid "DRupal Image Gallery."
+msgstr "DRupal Image Gallery."
+

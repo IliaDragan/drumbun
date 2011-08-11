@@ -1,0 +1,42 @@
+<?php
+// $Id: drig.install,v 1.0 2011/05/16 19:59:43 sas Exp $
+
+/**
+ * @file
+ * Install, update and uninstall functions for the drig module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function drig_uninstall() {
+	$node_types = node_type_get_types();
+	foreach($node_types as $key => $type){
+		variable_del('drig_fields_' . $key);
+	}
+	variable_del('drig_thumbnail_image_style');
+	variable_del('drig_count_on_page');
+}
+/**
+ * Implements hook_install().
+ */
+function drig_install() {
+  // Add the node type.
+  _drig_install_type_create();
+}
+function _drig_install_type_create() {
+  // Create an additional node type.
+  $drig_node_type = array(
+    'type' => 'image_gallery',
+    'name' => t('Image gallery'),
+    'base' => 'node_content',
+    'description' => t('Image gallery.'),
+    'custom' => 1,
+    'modified' => 1,
+    'locked' => 0,
+  );
+  $drig_node_type = node_type_set_defaults($drig_node_type);
+  node_type_save($drig_node_type);
+  node_add_body_field($drig_node_type);
+  drig_add_image_field($drig_node_type);
+}

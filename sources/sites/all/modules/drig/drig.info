@@ -1,0 +1,7 @@
+; $Id: drig.info,v 1.0 2011/05/16 19:59:43 sas Exp $
+name = DRIG
+description = DRupal Image Gallery.
+package = Image gallery
+version = VERSION
+core = 7.x
+dependencies[] = image

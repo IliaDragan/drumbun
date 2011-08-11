@@ -1,0 +1,15 @@
+name = 'Vimeo Link Formatter'
+description = 'Provides a field formatter for Link fields to format them as Vimeo video players.'
+core = 7.x
+package = Media
+files[] = vimeo_link_formatter.module
+files[] = vimeo_link_formatter.admin.inc
+dependencies[] = field
+dependencies[] = link
+
+; Information added by drupal.org packaging script on 2011-05-05
+version = "7.x-1.0"
+core = "7.x"
+project = "vimeo_link_formatter"
+datestamp = "1304628717"
+
