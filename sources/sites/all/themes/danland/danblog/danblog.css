@@ -42,6 +42,7 @@ text-decoration: underline;
 
 .site-name a:hover {
 text-decoration: none;
+text-align:center;
 }
 
 .comment .new {
